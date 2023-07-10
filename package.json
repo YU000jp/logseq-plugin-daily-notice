@@ -1,12 +1,12 @@
 {
-    "name": "logseq-plugin-weekday-message",
+    "name": "logseq-plugin-weekday-notice",
     "description": "A template for Logseq plugin written in TypeScript",
-    "repository": "https://github.com/YU000jp/logseq-plugin-weekday-message.git",
+    "repository": "https://github.com/YU000jp/logseq-plugin-weekday-notice.git",
     "author": "YU000jp",
     "license": "MIT",
     "logseq": {
-        "id": "weekday-message",
-        "title": "Weekday Message",
+        "id": "weekday-notice",
+        "title": "Weekday Notice",
         "icon": "./icon.svg",
         "main": "./dist/index.html"
     },
@@ -20,7 +20,8 @@
         "prod": "npm run clean && vite build"
     },
     "dependencies": {
-        "@logseq/libs": "^0.0.15"
+        "@logseq/libs": "^0.0.15",
+        "date-fns": "^2.30.0"
     },
     "devDependencies": {
         "@semantic-release/changelog": "^6.0.3",

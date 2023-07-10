@@ -1,5 +1,5 @@
 
-var PLUGIN_NAME = 'logseq-plugin-weekday-message'
+var PLUGIN_NAME = 'logseq-plugin-weekday-notice'
 
 module.exports = {
     branches: ['main'],
