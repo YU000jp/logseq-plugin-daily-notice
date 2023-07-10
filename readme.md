@@ -1,5 +1,7 @@
 # Logseq Plugin: *Weekday Notice*
 
+- A plugin that displays user messages by day of the week, with the added functionality of reminding about overdue tasks.
+
 - Development stage 👷🚧
 
 > This plugin still has room for improvement. Please let me know if you encounter any issues or have any ideas for enhancement.
