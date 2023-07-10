@@ -2,7 +2,7 @@ import "@logseq/libs"; //https://plugins-doc.logseq.com/
 import { BlockEntity, LSPluginBaseInfo, PageEntity, SettingSchemaDesc, } from "@logseq/libs/dist/LSPlugin.user";
 //import { setup as l10nSetup, t } from "logseq-l10n"; //https://github.com/sethyuan/logseq-l10n
 //import ja from "./translations/ja.json";
-import { subDays, subWeeks } from 'date-fns';
+import { format, subDays, subWeeks } from 'date-fns';
 
 /* main */
 const main = () => {
@@ -18,6 +18,9 @@ const main = () => {
 
   logseq.App.onTodayJournalCreated(async ({ title }) => await fromJournals(title));
 
+  if (logseq.settings!.enableOverdueLogseqLoaded === true) setTimeout(() => setUIoverdue(false, true), 300);
+  if (logseq.settings!.enableMessageBoxLogseqLoaded === true) setTimeout(() => openUIdayOfWeek(new Date()), 300);
+
   //for settingUI
   logseq.provideStyle(`
     div#${logseq.baseInfo.id}--overdue span.block-marker {
@@ -29,6 +32,10 @@ const main = () => {
     }
     div#${logseq.baseInfo.id}--overdue li {
       margin-bottom: 0.5em;
+    }
+    /* require Logseq v0.9.10 or later */
+    body:has(div#root main.ls-right-sidebar-open) div:is(#${logseq.baseInfo.id}--overdue,#${logseq.baseInfo.id}--messageBox) {
+      display: none;
     }
     div#root main div[data-id="${logseq.baseInfo.id}"] textarea.form-input {
       height: 12em;
@@ -177,12 +184,19 @@ const main = () => {
   // external button on toolbar
   logseq.App.registerUIItem('toolbar', {
     key: 'overdue',
-    template: `<div data-rect><a class="button icon" data-on-click="overdueFromToolbar" title="open overdue task monitor" style="font-size:20px">⏳</a></div>`,
+    template: `<div><a class="button icon" data-on-click="overdueFromToolbar" title="open overdue task monitor" style="font-size:20px">⏳</a></div>`,
+  });
+  logseq.App.registerUIItem('toolbar', {
+    key: 'messageBox',
+    template: `<div><a class="button icon" data-on-click="messageBoxFromToolbar" title="open weekday message box" style="font-size:20px">💬</a></div>`,
   });
 
   logseq.provideModel({
     overdueFromToolbar: () => {
-      if (logseq.settings!.enableOverdue === true) setUIoverdue(false, true);
+      setUIoverdue(false, true);
+    },
+    messageBoxFromToolbar: () => {
+      openUIdayOfWeek(new Date());
     },
   });
 
@@ -208,7 +222,7 @@ const fromJournals = async (title: string) => {
     if (page && page!.journalDay) openUIdayOfWeek(getJournalDayDate(String(page.journalDay)) as Date);
   }
   //Load overdue
-  if (logseq.settings!.enableOverdue === true) await setUIoverdue(false, true);
+  if (logseq.settings!.enableOverdueOnJournalTemplate === true) await setUIoverdue(false, true);
 };
 
 //Overdue
@@ -286,22 +300,23 @@ const setUIoverdue = async (demo: boolean, timeoutCancel?: boolean) => {
       <div style="padding:0.5em">
       ${print}
       </div>
+      <div style="margin-top:1em" title="Click toolbar button to update">Last Update : ${format(today, "MM/dd HH:mm")}</div>
     `,
         style: {
           padding: "0.5em",
-          right: "2vw",
+          right: "3px",
           left: "unset",
           top: "unset",
-          bottom: "1vw",
+          bottom: "3px",
           width: `550px`,
           height: `500px`,
           backgroundColor: "var(--ls-primary-background-color)",
           color: "var(--ls-primary-text-color)",
           boxShadow: "1px 2px 5px var(--ls-secondary-background-color)",
-          zIndex: demo === true ? "var(--ls-z-index-level-5)" : undefined,
+          zIndex: demo === true ? "var(--ls-z-index-level-5)" : "9",
         },
         attrs: {
-          title: "Overdue task (4 weeks)",
+          title: "⏳Overdue task (4 weeks)",
         },
       });
     };
@@ -335,7 +350,7 @@ const setUIoverdue = async (demo: boolean, timeoutCancel?: boolean) => {
 
 const openUIdayOfWeek = (targetDay: Date, demo?: number) => {
   //曜日を確認
-  const dayOfWeek: number = demo || demo === 0 ? demo : targetDay.getDay();
+  const dayOfWeek: number = (demo || demo === 0) ? demo : targetDay.getDay();
   //曜日に応じてメッセージを表示
   switch (dayOfWeek) {
     case 0:
@@ -343,7 +358,7 @@ const openUIdayOfWeek = (targetDay: Date, demo?: number) => {
         setUImessageBox(
           getWeekdayString(targetDay),
           logseq.settings!.sunday,
-          false,
+          true,
           false,
         );
       break;
@@ -352,7 +367,7 @@ const openUIdayOfWeek = (targetDay: Date, demo?: number) => {
         setUImessageBox(
           getWeekdayString(targetDay),
           logseq.settings!.monday,
-          false,
+          true,
           false,
         );
       break;
@@ -361,7 +376,7 @@ const openUIdayOfWeek = (targetDay: Date, demo?: number) => {
         setUImessageBox(
           getWeekdayString(targetDay),
           logseq.settings!.tuesday,
-          false,
+          true,
           false,
         );
       break;
@@ -370,7 +385,7 @@ const openUIdayOfWeek = (targetDay: Date, demo?: number) => {
         setUImessageBox(
           getWeekdayString(targetDay),
           logseq.settings!.wednesday,
-          false,
+          true,
           false,
         );
       break;
@@ -379,7 +394,7 @@ const openUIdayOfWeek = (targetDay: Date, demo?: number) => {
         setUImessageBox(
           getWeekdayString(targetDay),
           logseq.settings!.thursday,
-          false,
+          true,
           false,
         );
       break;
@@ -388,7 +403,7 @@ const openUIdayOfWeek = (targetDay: Date, demo?: number) => {
         setUImessageBox(
           getWeekdayString(targetDay),
           logseq.settings!.friday,
-          false,
+          true,
           false,
         );
       break;
@@ -416,7 +431,7 @@ const setUImessageBox = (title: string, print: string, timeoutCancel: boolean, d
   let bottom = "unset";
   switch (logseq.settings!.messageBoxAlignment as string) {
     case "right":
-      right = "2vw";
+      right = "3px";
       top = "calc(2vh + 50px)";
       break;
     case "center":
@@ -425,7 +440,7 @@ const setUImessageBox = (title: string, print: string, timeoutCancel: boolean, d
       break;
     case "bottom":
       left = `calc(50vw-(${width}/2)px)`;
-      bottom = "2vw";
+      bottom = "3px";
       break;
   }
   const show = (demo: boolean) => {
@@ -449,16 +464,19 @@ const setUImessageBox = (title: string, print: string, timeoutCancel: boolean, d
         backgroundColor,
         color,
         boxShadow: "1px 2px 5px var(--ls-secondary-background-color)",
-        zIndex: demo === true ? "var(--ls-z-index-level-5)" : undefined,
+        zIndex: demo === true ? "var(--ls-z-index-level-5)" : "9",
       },
       attrs: {
-        title,
+        title: '💬' + title,
       },
     });
     if (logseq.settings!.enableMessageBoxTimeout === true) setTimeout(() => {
       const element = parent.document.getElementById(logseq.baseInfo.id + "--messageBox") as HTMLDivElement;
       let closeCancel: boolean = false;
-      element.onclick = () => closeCancel = true;
+      element.onclick = () => {
+        closeCancel = true;
+        if (element) element.style.borderColor = "unset";
+      };
       element.onclose = () => closeCancel = true;
       setTimeout(() => {
         if (closeCancel === false && element) element.style.borderColor = "red";
@@ -496,9 +514,17 @@ const settingsTemplate: SettingSchemaDesc[] = [
     //messageBox
     key: "enableMessageBox",
     type: "boolean",
-    title: "Enable message box",
-    description: "Show message box when today journal is created",
+    title: "Show message box when today journal is created",
+    description: "",
     default: true,
+  },
+  {
+    //messageBox Logseq loaded
+    key: "enableMessageBoxLogseqLoaded",
+    type: "boolean",
+    title: "Show message box when Logseq loaded",
+    description: "",
+    default: false,
   },
   {//message box alignment
     key: "messageBoxAlignment",
@@ -577,8 +603,7 @@ const settingsTemplate: SettingSchemaDesc[] = [
   {
     key: "localizeOrEnglish",
     type: "enum",
-    title:
-      "For weekday of the message box title, select localize (your language) or English",
+    title: "For weekday of the message box title, select localize (your language) or English",
     enumChoices: ["default", "en"],
     description: "",
     default: "default",
@@ -595,8 +620,7 @@ const settingsTemplate: SettingSchemaDesc[] = [
     type: "string",
     inputAs: "textarea",
     title: "Message for Monday (Supports HTML instead of markdown)",
-    description:
-      "To view the modified content, toggle it off and then on again.",
+    description: "To view the modified content, toggle it off and then on again.",
     default: "",
   },
   {
@@ -611,8 +635,7 @@ const settingsTemplate: SettingSchemaDesc[] = [
     type: "string",
     inputAs: "textarea",
     title: "Message for Tuesday (Supports HTML instead of markdown)",
-    description:
-      "To view the modified content, toggle it off and then on again.",
+    description: "To view the modified content, toggle it off and then on again.",
     default: "",
   },
   {
@@ -627,8 +650,7 @@ const settingsTemplate: SettingSchemaDesc[] = [
     type: "string",
     inputAs: "textarea",
     title: "Message for Wednesday (Supports HTML instead of markdown)",
-    description:
-      "To view the modified content, toggle it off and then on again.",
+    description: "To view the modified content, toggle it off and then on again.",
     default: "",
   },
   {
@@ -643,8 +665,7 @@ const settingsTemplate: SettingSchemaDesc[] = [
     type: "string",
     inputAs: "textarea",
     title: "Message for Thursday (Supports HTML instead of markdown)",
-    description:
-      "To view the modified content, toggle it off and then on again.",
+    description: "To view the modified content, toggle it off and then on again.",
     default: "",
   },
   {
@@ -659,8 +680,7 @@ const settingsTemplate: SettingSchemaDesc[] = [
     type: "string",
     inputAs: "textarea",
     title: "Message for Friday (Supports HTML instead of markdown)",
-    description:
-      "To view the modified content, toggle it off and then on again.",
+    description: "To view the modified content, toggle it off and then on again.",
     default: "",
   },
   {
@@ -675,8 +695,7 @@ const settingsTemplate: SettingSchemaDesc[] = [
     type: "string",
     inputAs: "textarea",
     title: "Message for Saturday (Supports HTML instead of markdown)",
-    description:
-      "To view the modified content, toggle it off and then on again.",
+    description: "To view the modified content, toggle it off and then on again.",
     default: "",
   },
   {
@@ -691,17 +710,23 @@ const settingsTemplate: SettingSchemaDesc[] = [
     type: "string",
     inputAs: "textarea",
     title: "Message for Sunday (Supports HTML instead of markdown)",
-    description:
-      "To view the modified content, toggle it off and then on again.",
+    description: "To view the modified content, toggle it off and then on again.",
     default: "",
   },
   {//overdue
-    key: "enableOverdue",
+    key: "enableOverdueOnJournalTemplate",
     type: "boolean",
-    title: "Enable Overdue",
-    description: "Show overdue tasks when today journal is created",
-    default: false,
+    title: "Show overdue tasks when journal template is loaded",
+    description: "",
+    default: true,
   },
+  {//overdue Logseq loaded
+    key: "enableOverdueLogseqLoaded",
+    type: "boolean",
+    title: "Show overdue tasks when Logseq is loaded",
+    description: "",
+    default: false,
+  }
 ];
 
 logseq.ready(main).catch(console.error);
