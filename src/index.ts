@@ -531,8 +531,8 @@ const settingsTemplate: SettingSchemaDesc[] = [
     type: "enum",
     title: "Message box alignment",
     enumChoices: ["center", "right", "bottom"],
-    default: "center",
-    description: "default: center",
+    default: "right",
+    description: "default: right",
   },
   {
     //width: 500px
@@ -540,7 +540,7 @@ const settingsTemplate: SettingSchemaDesc[] = [
     type: "number",
     title: "Width of message box",
     description: "300 < 600 < 900 [px]",
-    default: 40,
+    default: 30,
     inputAs: "range",
   },
   {
@@ -549,7 +549,7 @@ const settingsTemplate: SettingSchemaDesc[] = [
     type: "number",
     title: "Height of message box",
     description: "300 < 600 < 900 [px]",
-    default: 25,
+    default: 20,
     inputAs: "range",
   },
   {//enable close timeout

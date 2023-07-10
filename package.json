@@ -1,12 +1,12 @@
 {
-    "name": "logseq-plugin-weekday-notice",
+    "name": "logseq-plugin-daily-notice",
     "description": "A plugin that displays user messages by day of the week, with the added functionality of reminding about overdue tasks.",
-    "repository": "https://github.com/YU000jp/logseq-plugin-weekday-notice.git",
+    "repository": "https://github.com/YU000jp/logseq-plugin-daily-notice.git",
     "author": "YU000jp",
     "license": "MIT",
     "logseq": {
-        "id": "weekday-notice",
-        "title": "Weekday Notice",
+        "id": "daily-notice",
+        "title": "Daily Notice",
         "icon": "./icon.svg",
         "main": "./dist/index.html"
     },
