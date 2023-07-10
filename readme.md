@@ -1,6 +1,6 @@
 # Logseq Plugin: *Weekday Notice*
 
-- A plugin that displays user messages by day of the week, with the added functionality of reminding about overdue tasks.
+- A plugin that displays user messages by day of the week, with the added functionality of reminding about overdue tasks. When the Journal template is loaded, they are displayed.
 
 - Development stage 👷🚧
 
@@ -24,6 +24,10 @@
 - Press [`---`] on the top right toolbar to open [`Plugins`]
 - Select marketplace
 - Type `Weekday` in the search field, select it from the search results and install
+
+### Recommend
+
+- Logseq v0.9.10 or later
 
 ### Usage
 
