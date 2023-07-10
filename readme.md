@@ -25,6 +25,10 @@
 - Select marketplace
 - Type `Weekday` in the search field, select it from the search results and install
 
+### Recommend
+
+- Logseq v0.9.10 or later
+
 ### Usage
 
 ---
