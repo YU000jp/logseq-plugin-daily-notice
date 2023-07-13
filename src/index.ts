@@ -192,12 +192,8 @@ const main = () => {
   });
 
   logseq.provideModel({
-    overdueFromToolbar: () => {
-      setUIoverdue(false, true);
-    },
-    messageBoxFromToolbar: () => {
-      openUIdayOfWeek(new Date());
-    },
+    overdueFromToolbar: () => setUIoverdue(false, true),
+    messageBoxFromToolbar: () => openUIdayOfWeek(new Date()),
   });
 
 }; /* end_main */
@@ -219,7 +215,7 @@ const fromJournals = async (title: string) => {
       logseq.settings!.toggleSaturday === false
     ) return;
     const page = (await logseq.Editor.getPage(title)) as PageEntity | null;
-    if (page && page!.journalDay) openUIdayOfWeek(getJournalDayDate(String(page.journalDay)) as Date);
+    if (page && page!.journalDay) openUIdayOfWeek(getDateInputJournalDay(String(page.journalDay)) as Date);
   }
   //Load overdue
   if (logseq.settings!.enableOverdueOnJournalTemplate === true) await setUIoverdue(false, true);
@@ -243,8 +239,8 @@ const setUIoverdue = async (demo: boolean, timeoutCancel?: boolean) => {
       [?b :block/deadline ?d]
     )
   )
-  [(<= ?d ${formatToStringJournalDayStyle(subDays(today, 1))})]
-  [(> ?d ${formatToStringJournalDayStyle(subWeeks(today, 4))})]
+  [(<= ?d ${getStringInputDate(subDays(today, 1))})]
+  [(> ?d ${getStringInputDate(subWeeks(today, 4))})]
 ]
 `;
   const res = await logseq.DB.datascriptQuery(query);
@@ -281,7 +277,7 @@ const setUIoverdue = async (demo: boolean, timeoutCancel?: boolean) => {
           const linkTitle = link.replace(/\[\[(.*?)\]\]/g, "$1");
           const page = await logseq.Editor.getPage(linkTitle) as PageEntity | null;
           if (!page) continue;
-          content = content.replace(link, `<a title="${linkTitle}" id="overdueLink--${page.uuid}">${linkTitle}</a>`);//TODO: リンクにする (<a>タグでの直リンクはよくない？)
+          content = content.replace(link, `<a title="${linkTitle}" id="overdueLink--${page.uuid}">${linkTitle}</a>`);
           linkList.push(page.uuid);
         }
       }
@@ -347,6 +343,8 @@ const setUIoverdue = async (demo: boolean, timeoutCancel?: boolean) => {
     }, timeoutCancel === true ? 300 : 1800);
   }
 };
+
+
 
 const openUIdayOfWeek = (targetDay: Date, demo?: number) => {
   //曜日を確認
@@ -490,22 +488,22 @@ const setUImessageBox = (title: string, print: string, timeoutCancel: boolean, d
   timeoutCancel === true ? show(demo) : setTimeout(() => show(demo), 1500);
 };
 
-const getJournalDayDate = (str: string): Date => new Date(
+//yyyymmdd形式をDateに変換
+const getDateInputJournalDay = (str: string): Date => new Date(
   Number(str.slice(0, 4)), //year
   Number(str.slice(4, 6)) - 1, //month 0-11
   Number(str.slice(6)), //day
   0, 0, 0, 0
 );
 
-
-const formatToStringJournalDayStyle = (date: Date): string => `${date.getFullYear()}${("0" + (date.getMonth() + 1)).slice(-2)}${("0" + date.getDate()).slice(-2)}`;
-
+//Dateをyyyymmdd形式の文字列に変換
+const getStringInputDate = (date: Date): string => `${date.getFullYear()}${("0" + (date.getMonth() + 1)).slice(-2)}${("0" + date.getDate()).slice(-2)}`;
 
 //for setting UI
-function calculateRangeBarForSettingUI(min: number, max: number, value: number): number {
+const calculateRangeBarForSettingUI = (min: number, max: number, value: number): number => {
   if (value < 1) value = 1;
   return (value * (max - min) / 100) + min;
-}
+};
 
 /* user setting */
 // https://logseq.github.io/plugins/types/SettingSchemaDesc.html
