@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/YU000jp/logseq-plugin-daily-notice/compare/v1.1.0...v1.1.1) (2023-07-23)
+
+
+### Bug Fixes
+
+* **bug:** duplicate popup ([9dec5a2](https://github.com/YU000jp/logseq-plugin-daily-notice/commit/9dec5a2faae43c4b928438829912a31cf6e4b407))
+
 # [1.1.0](https://github.com/YU000jp/logseq-plugin-daily-notice/compare/v1.0.0...v1.1.0) (2023-07-10)
 
 
