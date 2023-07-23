@@ -183,11 +183,11 @@ const main = () => {
 
   // external button on toolbar
   logseq.App.registerUIItem('toolbar', {
-    key: 'overdue',
+    key: 'openOverdue',
     template: `<div><a class="button icon" data-on-click="overdueFromToolbar" title="open overdue task monitor" style="font-size:20px">⏳</a></div>`,
   });
   logseq.App.registerUIItem('toolbar', {
-    key: 'messageBox',
+    key: 'openMessageBox',
     template: `<div><a class="button icon" data-on-click="messageBoxFromToolbar" title="open weekday message box" style="font-size:20px">💬</a></div>`,
   });
 
@@ -267,9 +267,9 @@ const setUIoverdue = async (demo: boolean, timeoutCancel?: boolean) => {
       const propertyIcon = content.indexOf("icon::");
       if (propertyIcon !== -1) content = content.slice(0, propertyIcon);
       // 「SCHEDULED:」を「<br/><>SCHEDULED:」に置き換える
-      content = content.replace("SCHEDULED:", "<br/><span  class='timestamp-label'>SCHEDULED:</span>");
+      content = content.replace("SCHEDULED:", "<br/><span class='timestamp-label'>SCHEDULED:</span>");
       // 「DEADLINE:」を「<br/><span>DEADLINE:」に置き換える
-      content = content.replace("DEADLINE:", "<br/><span  class='timestamp-label'>DEADLINE:</span>");
+      content = content.replace("DEADLINE:", "<br/><span class='timestamp-label'>DEADLINE:</span>");
       // [[タイトル]]のように[[と]]で囲まれた文字列が複数ある場合、[[と]]を削除し代わりに<a href="#/page/タイトル">リンクを追加、その文字列だけを全体からいくつか取り出す
       const propertyLink = content.match(/\[\[(.*?)\]\]/g);
       if (propertyLink) {
@@ -282,13 +282,14 @@ const setUIoverdue = async (demo: boolean, timeoutCancel?: boolean) => {
         }
       }
 
-      print += `<li><span class="block-marker ${item.marker}" id="overdue--${item.uuid}" title="Open in right sidebar">${item.marker}</span><span class="overDueContent">${content}</span>`;
+      print += `<li><span class="block-marker ${item.marker}" id="overdueBlock--${item.uuid}" title="Open in right sidebar">${item.marker}</span><span class="overDueContent">${content}</span>`;
       //item.scheduledをyyyy/mm/dd EEE形式に変換し、前後に<と>をつける
       print += `</li>`;
       itemList.push(item.uuid);
     };
     print += `</ul>`;
     const show = (demo: boolean) => {
+      closeUI("overdue");
       logseq.provideUI({
         key: "overdue",
         reset: true,
@@ -319,7 +320,7 @@ const setUIoverdue = async (demo: boolean, timeoutCancel?: boolean) => {
     timeoutCancel === true ? show(demo) : setTimeout(() => show(demo), 1500);
     setTimeout(() => {
       itemList.forEach((uuid) => {
-        const element = parent.document.getElementById(`overdue--${uuid}`) as HTMLSpanElement;
+        const element = parent.document.getElementById(`overdueBlock--${uuid}`) as HTMLSpanElement;
         if (element) element.onclick = async () => {
           const block = (await logseq.Editor.getBlock(uuid)) as BlockEntity | null;
           if (block) {
@@ -442,10 +443,10 @@ const setUImessageBox = (title: string, print: string, timeoutCancel: boolean, d
       break;
   }
   const show = (demo: boolean) => {
+    closeUI("messageBox");
     logseq.provideUI({
       key: "messageBox",
       reset: true,
-      replace: true,
       template: `
     <div style="padding:0.5em">
     ${print}
@@ -468,8 +469,8 @@ const setUImessageBox = (title: string, print: string, timeoutCancel: boolean, d
         title: '💬' + title,
       },
     });
+    const element = parent.document.getElementById(logseq.baseInfo.id + "--messageBox") as HTMLDivElement;
     if (logseq.settings!.enableMessageBoxTimeout === true) setTimeout(() => {
-      const element = parent.document.getElementById(logseq.baseInfo.id + "--messageBox") as HTMLDivElement;
       let closeCancel: boolean = false;
       element.onclick = () => {
         closeCancel = true;
@@ -483,7 +484,17 @@ const setUImessageBox = (title: string, print: string, timeoutCancel: boolean, d
         if (closeCancel === false && element) element.remove();
       }, logseq.settings!.messageBoxTimeout as number || 6000);
     }, 100);
-
+    //TODO: なぜか、エラーになってondragendが動作しない
+    //https://www.smpl-rfrns.net/DOM/ondragend.html
+    // element.addEventListener("dragend", () => {
+    //   console.log("moved");
+    //     logseq.updateSettings({
+    //       UIoverdueWidth: calculateRangeBarForSettingUI(300, 900, Number(element.style.width.slice(0, -2))),
+    //       UIoverdueHeight: calculateRangeBarForSettingUI(300, 900, Number(element.style.height.slice(0, -2))),
+    //       UIoverdueX: Number(element.style.left.slice(0, -2)),
+    //       UIoverdueY: Number(element.style.top.slice(0, -2)),
+    //     });
+    // });
   };
   timeoutCancel === true ? show(demo) : setTimeout(() => show(demo), 1500);
 };
@@ -495,6 +506,11 @@ const getDateInputJournalDay = (str: string): Date => new Date(
   Number(str.slice(6)), //day
   0, 0, 0, 0
 );
+
+const closeUI = (key: string) => {
+  const element = parent.document.getElementById(logseq.baseInfo.id + `--${key}`) as HTMLDivElement;
+  if (element) element.remove();
+};
 
 //Dateをyyyymmdd形式の文字列に変換
 const getStringInputDate = (date: Date): string => `${date.getFullYear()}${("0" + (date.getMonth() + 1)).slice(-2)}${("0" + date.getDate()).slice(-2)}`;
