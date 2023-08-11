@@ -1,3 +1,10 @@
+## [1.1.2](https://github.com/YU000jp/logseq-plugin-daily-notice/compare/v1.1.1...v1.1.2) (2023-08-11)
+
+
+### Bug Fixes
+
+* last release ([d165638](https://github.com/YU000jp/logseq-plugin-daily-notice/commit/d1656381a22d8ed62e076279b81175ed520fcc68))
+
 ## [1.1.1](https://github.com/YU000jp/logseq-plugin-daily-notice/compare/v1.1.0...v1.1.1) (2023-07-23)
 
 
