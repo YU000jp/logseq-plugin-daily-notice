@@ -24,6 +24,7 @@ const main = () => {
   if (logseq.settings!.enableOverdueLogseqLoaded === true) setTimeout(() => setUIoverdue(false), 300);
   if (logseq.settings!.enableMessageBoxLogseqLoaded === true) setTimeout(() => dailyMessageOpenUI(new Date()), 300);
 
+  
   //for settingUI
   logseq.provideStyle(`
     div#${logseq.baseInfo.id}--overdue span.block-marker {
